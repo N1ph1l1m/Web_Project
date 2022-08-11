@@ -5,6 +5,7 @@ const clean_css = require("gulp-clean-css");
 const babel = require("gulp-babel");
 const uglify = require("gulp-uglify");
 const concat = require("gulp-concat");
+const del = require('del');
 
 //Пути к файлам
 const paths = {
@@ -17,6 +18,10 @@ const paths = {
     dest: "dist/js/",
   },
 };
+
+function clean(){
+  return del(['del/*'])
+}
 //Перевод scss файла в css  и переименование его с дополнительным суфиксом .min
 function styles() {
   return gulp
@@ -50,6 +55,7 @@ function watch() {
 
 const build = gulp.series(gulp.parallel(styles, scripts), watch);
 
+exports.clean = clean; 
 exports.styles = styles;
 exports.scripts = scripts;
 exports.watch = watch;
