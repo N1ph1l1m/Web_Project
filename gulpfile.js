@@ -5,14 +5,21 @@ const clean_css = require("gulp-clean-css");
 const babel = require("gulp-babel");
 const uglify = require("gulp-uglify");
 const concat = require("gulp-concat");
-const autoprefixer = require('gulp-autoprefixer');
-const sourcemaps = require('gulp-sourcemaps');
-//const imagemin = require("gulp-imagemin");
-const del = require('del');
+const autoprefixer = require("gulp-autoprefixer");
+const sourcemaps = require("gulp-sourcemaps");
+const imagemin = require("gulp-imagemin");
+const htmlmin = require("gulp-htmlmin");
+const size = require("gulp-size");
+const newer = require("gulp-newer");
+const del = require("del");
 
 
 //Пути к файлам
 const paths = {
+  html: {
+    src: "src/*.html",
+    dest: "dist",
+  },
   stylesNull: {
     src: "src/styles/**/styleNull.scss",
     dest: "dist/css/",
@@ -26,14 +33,21 @@ const paths = {
     dest: "dist/js/",
   },
   images:{
-src: 'src/img/*',
-dest: 'dist/img',
+    src: "src/img/*",
+    dest: "dist/img",
   },
 };
 
 function clean(){
-  return del(['del/*'])
+  return del(['dist/*', '!dist/img'])
 }
+//Сжате html файла
+function html(){
+  return gulp.src(paths.html.src)
+  .pipe(htmlmin({ collapseWhitespace: true }))
+  .pipe(gulp.dest(paths.html.dest))
+}
+
 //Перевод scss файла в css  и переименование его с дополнительным суфиксом .min
 function stylesNull() 
 {
@@ -54,6 +68,7 @@ function stylesNull()
       })
     )
     .pipe(sourcemaps.write('.'))
+    .pipe(size({showFiles:true}))
     .pipe(gulp.dest(paths.stylesNull.dest));
 }
 function styles() 
@@ -75,6 +90,7 @@ function styles()
       })
     )
     .pipe(sourcemaps.write('.'))
+    .pipe(size({showFiles:true,}))
     .pipe(gulp.dest(paths.styles.dest));
 }
 //Работа с js файлами
@@ -90,28 +106,47 @@ function scripts() {
     .pipe(uglify())
     .pipe(concat("main.min.js"))
     .pipe(sourcemaps.write('.'))
+    .pipe(size({showFiles:true}))
     .pipe(gulp.dest(paths.scripts.dest));
 }
-/*function img(){
-  return gulp.src(paths.images.src)
-		.pipe(imagemin())
-		.pipe(gulp.dest(paths.images.dest))
-}*/
+//Сжате изображений
+function img() {
+  return (
+    gulp
+      .src(paths.images.src)
+      .pipe(newer(paths.images.dest))
+      .pipe(
+        imagemin([
+          imagemin.gifsicle({ interlaced: true }),
+          imagemin.mozjpeg({ quality: 75, progressive: true }),
+          imagemin.optipng({ optimizationLevel: 5 }),
+          imagemin.svgo({
+            plugins: [{ removeViewBox: true }, { cleanupIDs: false }],
+          }),
+        ])
+      )
+      .pipe(size({showFiles:true}))
+      .pipe(gulp.dest(paths.images.dest))
+  );
+}
 //Отслеживание функции function styles()
 function watch() {
+  gulp.watch(paths.html.src);
+  gulp.watch(paths.stylesNull.src, stylesNull);
   gulp.watch(paths.styles.src, styles);
   gulp.watch(paths.scripts.src, scripts);
-  //gulp.watch(paths.images.src, img);
+  gulp.watch(paths.images.src, img);
 }
+//Запуск gulp по умолчанию 
+const build = gulp.series(clean,html,gulp.parallel(stylesNull,styles, scripts,img ),watch);
 
-const build = gulp.series(clean,gulp.parallel(stylesNull,styles, scripts,/*img */), watch);
-
-
+//Вызов функции
 exports.clean = clean; 
+exports.html = html; 
 exports.stylesNull = stylesNull;
 exports.styles = styles;
 exports.scripts = scripts;
 exports.watch = watch;
-//exports.img = img; 
+exports.img = img; 
 exports.default = build;
 exports.build = build;
