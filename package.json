@@ -25,6 +25,7 @@
     "gulp-size": "^4.0.1",
     "gulp-sourcemaps": "^3.0.0",
     "gulp-uglify": "^3.0.2",
+    "jshint": "^2.13.5",
     "sass": "^1.54.3"
   }
 }
