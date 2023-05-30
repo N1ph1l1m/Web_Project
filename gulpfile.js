@@ -20,6 +20,10 @@ const paths = {
     src: "src/*.html",
     dest: "dist",
   },
+  otherHTMLfiles: {
+    src: "src/html/**/*.html",
+    dest: "dist/html/",
+  },
   stylesNull: {
     src: "src/styles/**/styleNull.scss",
     dest: "dist/css/",
@@ -43,7 +47,7 @@ const paths = {
 };
 
 function clean(){
-  return del(['dist/*', '!dist/img'])
+  return del(['dist/*','!dist/img'])
 }
 //Сжате html файла
 function html(){
@@ -52,6 +56,11 @@ function html(){
   .pipe(gulp.dest(paths.html.dest))
 }
 
+function otherHTMLfiles(){
+  return gulp.src(paths.otherHTMLfiles.src)
+  .pipe(htmlmin({ collapseWhitespace: true }))
+  .pipe(gulp.dest(paths.otherHTMLfiles.dest))
+}
 //Перевод scss файла в css  и переименование его с дополнительным суфиксом .min
 function stylesNull() 
 {
@@ -60,8 +69,8 @@ function stylesNull()
     .pipe(sourcemaps.init())
     .pipe(sass())
     .pipe(autoprefixer({
-      cascade: false
-    }))
+			cascade: false
+		}))
     .pipe(clean_css({
       level:2
     }))
@@ -82,8 +91,8 @@ function stylesMain()
     .pipe(sourcemaps.init())
     .pipe(sass())
     .pipe(autoprefixer({
-      cascade: false
-    }))
+			cascade: false
+		}))
     .pipe(clean_css({
       level:2
     }))
@@ -104,8 +113,8 @@ function styles()
     .pipe(sourcemaps.init())
     .pipe(sass())
     .pipe(autoprefixer({
-      cascade: false
-    }))
+			cascade: false
+		}))
     .pipe(clean_css({
       level:2
     }))
@@ -162,6 +171,7 @@ function img() {
 //Отслеживание функции function styles()
 function watch() {
   gulp.watch(paths.html.src);
+  gulp.watch(paths.otherHTMLfiles.src,otherHTMLfiles);
   gulp.watch(paths.stylesNull.src, stylesNull);
   gulp.watch(paths.stylesMain.src, stylesMain);
   gulp.watch(paths.styles.src, styles);
@@ -169,11 +179,12 @@ function watch() {
   gulp.watch(paths.images.src, img);
 }
 //Запуск gulp по умолчанию 
-const build = gulp.series(clean,html,gulp.parallel(stylesNull,styles,stylesMain, scripts,img ),watch);
+const build = gulp.series(clean,html,otherHTMLfiles,gulp.parallel(otherHTMLfiles,stylesNull,styles,stylesMain, scripts,img ),watch);
 
 //Вызов функции
 exports.clean = clean; 
 exports.html = html; 
+exports.otherHTMLfiles = otherHTMLfiles; 
 exports.stylesNull = stylesNull;
 exports.stylesMain = stylesMain;
 exports.styles = styles;
@@ -182,4 +193,3 @@ exports.watch = watch;
 exports.img = img; 
 exports.default = build;
 exports.build = build;
-
