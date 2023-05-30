@@ -24,8 +24,12 @@ const paths = {
     src: "src/styles/**/styleNull.scss",
     dest: "dist/css/",
   },
-  styles: {
+  stylesMain: {
     src: "src/styles/**/style.scss",
+    dest: "dist/css/",
+  },
+  styles: {
+    src: "src/styles/**/*.scss",
     dest: "dist/css/",
   },
   scripts: {
@@ -56,8 +60,8 @@ function stylesNull()
     .pipe(sourcemaps.init())
     .pipe(sass())
     .pipe(autoprefixer({
-			cascade: false
-		}))
+      cascade: false
+    }))
     .pipe(clean_css({
       level:2
     }))
@@ -71,6 +75,28 @@ function stylesNull()
     .pipe(size({showFiles:true}))
     .pipe(gulp.dest(paths.stylesNull.dest));
 }
+function stylesMain() 
+{
+  return gulp
+    .src(paths.stylesMain.src)
+    .pipe(sourcemaps.init())
+    .pipe(sass())
+    .pipe(autoprefixer({
+      cascade: false
+    }))
+    .pipe(clean_css({
+      level:2
+    }))
+    .pipe(
+      rename({
+        basename: "main",
+        suffix: ".min",
+      })
+    )
+    .pipe(sourcemaps.write('.'))
+    .pipe(size({showFiles:true,}))
+    .pipe(gulp.dest(paths.styles.dest));
+}
 function styles() 
 {
   return gulp
@@ -78,14 +104,13 @@ function styles()
     .pipe(sourcemaps.init())
     .pipe(sass())
     .pipe(autoprefixer({
-			cascade: false
-		}))
+      cascade: false
+    }))
     .pipe(clean_css({
       level:2
     }))
     .pipe(
       rename({
-        basename: "main",
         suffix: ".min",
       })
     )
@@ -104,7 +129,12 @@ function scripts() {
       presets: ['@babel/env']
     }))
     .pipe(uglify())
-    .pipe(concat("main.min.js"))
+    // .pipe(concat("main.min.js"))
+    .pipe(
+      rename({
+        suffix: ".min",
+      })
+    )
     .pipe(sourcemaps.write('.'))
     .pipe(size({showFiles:true}))
     .pipe(gulp.dest(paths.scripts.dest));
@@ -133,20 +163,23 @@ function img() {
 function watch() {
   gulp.watch(paths.html.src);
   gulp.watch(paths.stylesNull.src, stylesNull);
+  gulp.watch(paths.stylesMain.src, stylesMain);
   gulp.watch(paths.styles.src, styles);
   gulp.watch(paths.scripts.src, scripts);
   gulp.watch(paths.images.src, img);
 }
 //Запуск gulp по умолчанию 
-const build = gulp.series(clean,html,gulp.parallel(stylesNull,styles, scripts,img ),watch);
+const build = gulp.series(clean,html,gulp.parallel(stylesNull,styles,stylesMain, scripts,img ),watch);
 
 //Вызов функции
 exports.clean = clean; 
 exports.html = html; 
 exports.stylesNull = stylesNull;
+exports.stylesMain = stylesMain;
 exports.styles = styles;
 exports.scripts = scripts;
 exports.watch = watch;
 exports.img = img; 
 exports.default = build;
 exports.build = build;
+
