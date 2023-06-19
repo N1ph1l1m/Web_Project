@@ -175,10 +175,10 @@ function img() {
 //Отслеживание функции function styles()
 function watch() {
   browserSync.init({
-    server: "./src/"
+    server: "./dist/"
 });
-  gulp.watch(paths.html.src).on('change' , browserSync.reload);
-  gulp.watch(paths.html.src);
+  gulp.watch(paths.html.dest).on('change' , browserSync.reload);
+  gulp.watch(paths.html.src,html);
   gulp.watch(paths.otherHTMLfiles.src,otherHTMLfiles);
   gulp.watch(paths.stylesNull.src, stylesNull);
   gulp.watch(paths.stylesMain.src, stylesMain);
@@ -187,7 +187,7 @@ function watch() {
   gulp.watch(paths.images.src, img);
 }
 //Запуск gulp по умолчанию 
-const build = gulp.series(clean,html,otherHTMLfiles,gulp.parallel(otherHTMLfiles,stylesNull,styles,stylesMain, scripts,img ),watch);
+const build = gulp.series(clean,html,otherHTMLfiles,gulp.parallel(otherHTMLfiles,stylesNull,styles,stylesMain, scripts,img),watch);
 
 //Вызов функции
 exports.clean = clean; 
