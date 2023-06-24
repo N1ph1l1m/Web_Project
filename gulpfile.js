@@ -13,6 +13,7 @@ const size = require("gulp-size");
 const newer = require("gulp-newer");
 const browserSync = require("browser-sync").create();
 const del = require("del");
+//const gulpJson = require('gulp-json');
 
 
 //Пути к файлам
@@ -53,6 +54,10 @@ const paths = {
     src:  "src/server/*.json",
     dest: "dist/server",
   },
+  // apiURL:{
+  //   src:  "src/server/api.json",
+  //   dest: "dist/server",
+  // },
   
   
 };
@@ -193,6 +198,11 @@ function server(){
   .pipe(gulp.dest(paths.server.dest))
   .pipe(browserSync.stream())
 }
+// function apiUrlJson(){
+//   return gulp.src(paths.server.src)
+//   .pipe(gulpJson())
+//   .pipe(gulp.dest(paths.server.dest))
+// }
 
 //Отслеживание функции function styles()
 function watch() {
@@ -209,6 +219,8 @@ function watch() {
   gulp.watch(paths.images.src, img);
   gulp.watch(paths.icons.src, icons);
   gulp.watch(paths.server.src, server);
+ // gulp.watch(paths.apiURL.src, apiUrlJson);
+
   // gulp.watch(paths.jsonSync.src, jsonSync);
 
 }
